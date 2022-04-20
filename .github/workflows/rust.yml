@@ -40,19 +40,11 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
 
-      - name: AWS ECR Configure
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-1
-
       - name: Generate ECR Variables
         run: |
-          echo "ECR_IMAGE_NAME=${{ secrets.AWS_ECR_ENDPOINT }}/ccy-rates:latest" >> $GITHUB_ENV
+          echo "ECR_IMAGE_NAME=public.ecr.aws/i8b8q8v9/ccy-rates:latest" >> $GITHUB_ENV
 
       - name: Build and Push to ECR
         run: |
-          aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_ENDPOINT }}
           docker build -t ${{ env.ECR_IMAGE_NAME }} . -f Dockerfile
           docker push ${{ env.ECR_IMAGE_NAME }}
